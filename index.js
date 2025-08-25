@@ -4,6 +4,12 @@ import fetch from "node-fetch";
 const app = express();
 app.use(express.json());
 
+// Health check
+app.get("/", (req, res) => {
+  res.send("ok");
+});
+
+// Relay endpoint
 app.post("/relay", async (req, res) => {
   try {
     const r = await fetch(process.env.DISCORD_URL, {
@@ -18,6 +24,6 @@ app.post("/relay", async (req, res) => {
   }
 });
 
-app.get("/", (req,res)=>res.send("ok")); // health check
-
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Server started");
+});
