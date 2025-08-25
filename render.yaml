@@ -1,4 +1,5 @@
 services:
+  # --- Discord Bot (Node Web Service) ---
   - type: web
     name: coven-zero-bot
     env: node
@@ -15,4 +16,11 @@ services:
         sync: false
       - key: PORT
         value: "3000"
-        
+
+  # --- Static Site (Front-end) ---
+  - type: static
+    name: coven-zero-site
+    rootDir: site
+    # If you're not running a build (pure static), leave buildCommand empty:
+    buildCommand: ""
+    staticPublishPath: "."
