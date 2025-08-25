@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: coven-zero-bot
+    env: node
+    plan: free   # or starter/standard depending on your account
+    buildCommand: |
+      cd bot
+      npm install
+      npm run register
+    startCommand: |
+      cd bot
+      npm run start
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: CLIENT_ID
+        sync: false
+      - key: GUILD_ID
+        sync: false
+      - key: PORT
+        value: "3000"
