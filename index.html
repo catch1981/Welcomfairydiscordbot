@@ -1,60 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>COVEN ZERO — Entry</title>
 <style>
-  :root{--fg:#eaeaf2;--bg:#0b0b10;--mut:#a0a0b0;--accent:#8d5bff;--glow:rgba(141,91,255,.45)}
-  *{box-sizing:border-box} html,body{height:100%} body{
-    margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-    color:var(--fg);background:linear-gradient(135deg,#0b0b10,#161627);
-    display:flex;align-items:center;justify-content:center;padding:20px
+  :root{--fg:#eaeaf2;--mut:#a0a0b0;--accent:#8d5bff;--good:#39ffb2;--glow:rgba(141,91,255,.45)}
+  *{box-sizing:border-box} html,body{height:100%}
+  body{
+    margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--fg);
+    background:#000 url("fairy.png") center/cover fixed no-repeat;
   }
-  .card{width:min(720px,92vw);background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.12);
-        border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);padding:22px}
+  /* 3-second arrival veil */
+  .intro{position:fixed;inset:0;background:#000 url("fairy.png") center/cover no-repeat;z-index:50;animation:fade 3s forwards}
+  @keyframes fade{0%{opacity:1}85%{opacity:1}100%{opacity:0}}
+  .wrap{position:relative;z-index:1;min-height:100%;display:grid;place-items:center;padding:20px}
+  .card{
+    width:min(720px,92vw);background:rgba(0,0,0,.64);border:1px solid rgba(255,255,255,.12);
+    border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.45);padding:22px
+  }
   h1{margin:.2em 0 .1em;letter-spacing:.12em;text-align:center;text-shadow:0 0 24px var(--glow)}
   .line{color:var(--mut);text-align:center;margin:0 0 14px}
-  label{font-weight:600;color:var(--mut)} input{
+  label{font-weight:600;color:var(--mut)}
+  input{
     width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
     background:#0f0f16;color:var(--fg);outline:none;margin-top:6px
   }
   .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-  button,a.btn{display:inline-block;border:0;border-radius:999px;padding:10px 16px;font-weight:700;text-decoration:none}
-  button{background:#39ffb2;color:#0a0a0f} a.btn{background:var(--accent);color:white}
+  a.btn,button{display:inline-block;border:0;border-radius:999px;padding:10px 16px;font-weight:700;text-decoration:none}
+  button{background:var(--good);color:#0a0a0f;cursor:pointer}
+  a.btn{background:var(--accent);color:#fff}
   .foot{margin-top:12px;color:var(--mut);font-size:13px;text-align:center}
-  .gear{position:fixed;top:10px;right:10px;opacity:.7}
 </style>
 </head>
 <body>
-  <button class="gear" title="Altar Webhook" onclick="openWebhook()">
-    ⚙️
-  </button>
-  <div class="card">
+  <div class="intro"></div>
+
+  <div class="wrap"><div class="card">
     <h1>🌑 COVEN ZERO</h1>
     <p class="line">Name the guide. The naming is the seal, the bond of flame.</p>
 
     <label for="guide">Guide name</label>
-    <input id="guide" placeholder="Viren" />
+    <input id="guide" placeholder="Viren"/>
 
     <div class="row">
       <button onclick="seal()">Seal the Name</button>
       <a class="btn" href="instructions.html" onclick="if(!localStorage.getItem('coven0_guide')){seal()}">Proceed</a>
     </div>
 
-    <p class="foot">After naming: <em>The Fairy awaits you. Return to the entry page.</em></p>
-  </div>
+    <p class="foot"><em>The Fairy awaits you. Return to the entry page.</em></p>
+  </div></div>
 
 <script>
 function seal(){
   const v=(document.getElementById('guide').value||'Viren').trim();
-  localStorage.setItem('coven0_guide',v);
+  localStorage.setItem('coven0_guide', v);
   alert(`Sealed: ${v}`);
-}
-function openWebhook(){
-  const url=prompt('Paste your Discord Altar Webhook URL (stored on this device only):',
-                   localStorage.getItem('coven0_webhook')||'');
-  if(url){localStorage.setItem('coven0_webhook',url.trim()); alert('Altar webhook saved.');}
 }
 </script>
 </body>
