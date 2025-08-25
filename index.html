@@ -1,63 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>COVEN ZERO — Entry</title>
 <style>
-  :root{--fg:#eaeaf2;--mut:#a0a0b0;--accent:#8d5bff;--good:#39ffb2;--glow:rgba(141,91,255,.45)}
-  *{box-sizing:border-box} html,body{height:100%}
+  :root{--fg:#eaeaf2;--mut:#a0a0b0;--accent:#8d5bff;--good:#39ffb2}
+  *{box-sizing:border-box}
+  html,body{height:100%}
   body{
-    margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--fg);
-    background:#000 url("fairy.png") center/cover fixed no-repeat;
+    margin:0; font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    color:var(--fg); background:#000; position:relative;
   }
-  /* Card fades in after 3s, but it's fully clickable the whole time */
-  .wrap{min-height:100%;display:grid;place-items:center;padding:20px}
+  /* Background image sits *behind* everything (cannot intercept taps) */
+  .bg{
+    position:fixed; inset:0; width:100%; height:100%;
+    object-fit:cover; filter:brightness(.75);
+    z-index:-1; pointer-events:none; user-select:none;
+  }
+  .wrap{
+    min-height:100%; display:grid; place-items:center; padding:20px;
+  }
   .card{
-    width:min(720px,92vw);background:rgba(0,0,0,.64);border:1px solid rgba(255,255,255,.12);
-    border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.45);padding:22px;
-    opacity:0; animation: show 0.7s ease 2.8s forwards; /* 3s “arrival” look */
+    width:min(720px,92vw);
+    background:rgba(0,0,0,.64);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:14px; padding:22px;
+    box-shadow:0 10px 40px rgba(0,0,0,.45);
   }
-  @keyframes show{to{opacity:1}}
-  h1{margin:.2em 0 .1em;letter-spacing:.12em;text-align:center;text-shadow:0 0 24px var(--glow)}
-  .line{color:var(--mut);text-align:center;margin:0 0 14px}
-  label{font-weight:600;color:var(--mut)}
+  h1{margin:.2em 0 .1em; letter-spacing:.12em; text-align:center}
+  .line{color:var(--mut); text-align:center; margin:0 0 14px}
+  label{font-weight:600; color:var(--mut)}
   input{
-    width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
-    background:#0f0f16;color:var(--fg);outline:none;margin-top:6px
+    width:100%; padding:12px 14px; margin-top:6px;
+    border-radius:10px; border:1px solid rgba(255,255,255,.12);
+    background:#0f0f16; color:var(--fg); outline:none;
+    -webkit-user-select:text;
   }
-  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-  a.btn,button{display:inline-block;border:0;border-radius:999px;padding:10px 16px;font-weight:700;text-decoration:none}
-  button{background:#39ffb2;color:#0a0a0f;cursor:pointer}
-  a.btn{background:#8d5bff;color:#fff}
-  .foot{margin-top:12px;color:var(--mut);font-size:13px;text-align:center}
+  .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+  button, a.btn{
+    display:inline-block; border:0; border-radius:999px; padding:10px 16px;
+    font-weight:700; text-decoration:none;
+  }
+  button{background:var(--good); color:#0a0a0f}
+  a.btn{background:var(--accent); color:#fff}
+  .foot{margin-top:12px; color:var(--mut); font-size:13px; text-align:center}
 </style>
 </head>
 <body>
-  <div class="wrap"><div class="card" id="card">
-    <h1>🌑 COVEN ZERO</h1>
-    <p class="line">Name the guide. The naming is the seal, the bond of flame.</p>
+  <!-- Real image element behind everything -->
+  <img class="bg" src="fairy.png" alt="" onerror="this.src='Fairy.png'"/>
 
-    <label for="guide">Guide name</label>
-    <input id="guide" placeholder="Viren" autocomplete="off" />
+  <div class="wrap">
+    <div class="card" id="card">
+      <h1>🌑 COVEN ZERO</h1>
+      <p class="line">Name the guide. The naming is the seal, the bond of flame.</p>
 
-    <div class="row">
-      <button id="sealBtn">Seal the Name</button>
-      <a class="btn" id="proceed" href="instructions.html">Proceed</a>
+      <label for="guide">Guide name</label>
+      <input id="guide" placeholder="Viren" autocomplete="off" autocapitalize="none"/>
+
+      <div class="row">
+        <button id="sealBtn" type="button">Seal the Name</button>
+        <a class="btn" id="proceed" href="instructions.html">Proceed</a>
+      </div>
+
+      <p class="foot"><em>The Fairy awaits you. Return to the entry page.</em></p>
     </div>
-
-    <p class="foot"><em>The Fairy awaits you. Return to the entry page.</em></p>
-  </div></div>
+  </div>
 
 <script>
-function seal(){
-  const v=(document.getElementById('guide').value || 'Viren').trim();
-  try { localStorage.setItem('coven0_guide', v); } catch(e) {}
-  document.getElementById('sealBtn').textContent='Sealed';
-}
-document.getElementById('sealBtn').addEventListener('click', seal);
-document.getElementById('proceed').addEventListener('click', function(){
-  if(!localStorage.getItem('coven0_guide')) seal();
-});
+(function(){
+  const input = document.getElementById('guide');
+  const sealBtn = document.getElementById('sealBtn');
+  const proceed = document.getElementById('proceed');
+
+  function seal(){
+    const v = (input.value || 'Viren').trim();
+    try { localStorage.setItem('coven0_guide', v); } catch(e) {}
+    sealBtn.textContent = 'Sealed';
+  }
+
+  sealBtn.addEventListener('click', seal);
+  proceed.addEventListener('click', function(e){
+    if(!localStorage.getItem('coven0_guide')) seal();
+  });
+
+  // iOS sometimes needs an explicit focus nudge on touch
+  document.getElementById('card').addEventListener('touchstart', function(){
+    if(document.activeElement !== input) input.focus({preventScroll:true});
+  }, {passive:true});
+})();
 </script>
 </body>
 </html>
