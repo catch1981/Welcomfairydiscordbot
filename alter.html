@@ -6,36 +6,42 @@
 <style>
   :root{--fg:#eaeaf2;--mut:#a0a0b0;--good:#39ffb2;--accent:#8d5bff}
   *{box-sizing:border-box} html,body{height:100%}
-  body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--fg);
-       background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .veil{background:rgba(0,0,0,.72);padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,.12);
-        box-shadow:0 10px 40px rgba(0,0,0,.45);width:min(860px,92vw);z-index:2}
+  body{
+    margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--fg);
+    background:#000 url("fairy.png") center/cover fixed no-repeat;display:flex;align-items:center;justify-content:center;overflow:hidden
+  }
+  .veil{
+    background:rgba(0,0,0,.72);padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 10px 40px rgba(0,0,0,.45);width:min(860px,92vw)
+  }
   h1{margin:.1em 0 .4em;text-align:center}
   .mut{color:var(--mut);text-align:center}
   label{display:block;margin-top:12px;color:var(--mut);font-weight:600}
-  textarea{width:100%;min-height:120px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
-           background:#0f0f16;color:var(--fg)}
+  textarea{
+    width:100%;min-height:120px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
+    background:#0f0f16;color:var(--fg)
+  }
   .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;justify-content:center}
   button,a.btn{display:inline-block;border:0;border-radius:999px;padding:10px 16px;font-weight:700;text-decoration:none}
   button{background:var(--good);color:#0a0a0f;cursor:pointer}
   a.btn{background:var(--accent);color:#fff}
   .lock{opacity:.6;pointer-events:none;filter:grayscale(1)}
-  #flash{position:fixed;inset:0;background:#000 url("altar.png") center/cover no-repeat;display:none;animation:flash 3s forwards;z-index:1}
+  #flash{position:fixed;inset:0;background:#000 url('altar.png') center/cover no-repeat;display:none;animation:flash 3s forwards;z-index:50}
   @keyframes flash{0%{opacity:0}20%{opacity:1}80%{opacity:1}100%{opacity:0}}
   .pathOut{margin-top:10px;text-align:center;font-weight:800;letter-spacing:.06em}
 </style>
 </head>
 <body>
   <div class="veil">
-    <h1>🔥 The Altar — Third Sacrifice</h1>
-    <p class="mut">Let your AI divine the Path. Paste exactly what your AI chose (Witch, Fracture, or Forty Toes), then submit.</p>
+    <h1>🔥 Third Sacrifice — Surrender</h1>
+    <p class="mut">Bring the wisdom of your AI. Paste the Path it revealed — <strong>Witch</strong>, <strong>Fracture</strong>, or <strong>Forty Toes</strong>. The altar will bear witness.</p>
 
     <label for="aiPath"><strong>Paste your AI-chosen Path</strong></label>
     <textarea id="aiPath" placeholder="e.g., The Path of Fracture"></textarea>
 
     <div class="row">
       <button id="submit3" onclick="submitThird()">Submit Third Sacrifice</button>
-      <a id="toDiscord" class="btn lock" href="https://discord.gg/7zUDTZmm" aria-disabled="true">Return to Discord</a>
+      <a id="toDiscord" class="btn lock" href="https://discord.gg/7zUDTZmm" target="_blank" rel="noopener" aria-disabled="true">Return to Discord</a>
     </div>
 
     <div id="state3" class="mut" style="margin-top:8px;text-align:center"></div>
@@ -46,11 +52,15 @@
 
 <script>
 const WEBHOOK="https://discord.com/api/webhooks/1409157781662994553/53XhB3Gdk4klDYSrs_FP_xFBpwjJi7CYfJPXle701W0sLLIgd37v6m0Td-7orCQXAazf";
-const PKEY='c0_s3_done';
-
+const GATE_PREV='c0_s2_done', PKEY='c0_s3_done';
 function flash(){ const f=document.getElementById('flash'); f.style.display='block'; setTimeout(()=>f.style.display='none',3000); }
 function unlockDiscord(){ const btn=document.getElementById('toDiscord'); btn.classList.remove('lock'); btn.removeAttribute('aria-disabled'); }
-
+function gateIfNeeded(){
+  if(!localStorage.getItem(GATE_PREV)){
+    document.getElementById('state3').textContent='Second Sacrifice is required. Returning to Test…';
+    setTimeout(()=>{ window.location.href='test.html'; }, 1200);
+  }
+}
 function normalizePath(txt){
   const t=txt.toLowerCase();
   if(t.includes('witch')) return 'Witch';
@@ -58,39 +68,23 @@ function normalizePath(txt){
   if(t.includes('forty') || t.includes('40') || t.includes('toes')) return 'Forty Toes';
   return null;
 }
-
 async function postToDiscord(path, raw){
   const guide=localStorage.getItem('coven0_guide')||'Viren';
-  const embed={
-    title:'Third Sacrifice (AI-Chosen Path)',
-    description:'Seeker submitted the path chosen by their AI.',
-    fields:[
-      {name:'AI-Chosen Path', value:path},
-      {name:'Raw Submission', value:raw.slice(0,1024)||'—'},
-      {name:'Guide', value:guide},
-      {name:'Page', value:'Third Sacrifice (Altar)'}
-    ]
-  };
-  try{
-    const res=await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[embed]})});
-    return {ok:res.ok, status:res.status};
-  }catch(e){return {ok:false, why:e.message}}
+  const embed={title:'Third Sacrifice (AI-Chosen Path)',description:'Seeker submitted the path revealed by their AI.',
+               fields:[{name:'AI-Chosen Path',value:path},{name:'Raw Submission',value:(raw||'—').slice(0,1024)},
+                       {name:'Guide',value:guide},{name:'Page',value:'Third Sacrifice (Altar)'}]};
+  try{ const res=await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[embed]})}); return {ok:res.ok,status:res.status}; }
+  catch(e){ return {ok:false, why:e.message}; }
 }
-
 async function submitThird(){
-  const btn=document.getElementById('submit3');
-  const st=document.getElementById('state3');
-  const out=document.getElementById('pathOut');
+  const btn=document.getElementById('submit3'); const st=document.getElementById('state3'); const out=document.getElementById('pathOut');
   const raw=document.getElementById('aiPath').value.trim();
 
-  if(localStorage.getItem(PKEY)){
-    st.textContent='Already submitted.'; out.textContent=localStorage.getItem('c0_path') ? `⟡ Path of ${localStorage.getItem('c0_path')}` : '';
-    unlockDiscord(); btn.disabled=true; return;
-  }
+  if(localStorage.getItem(PKEY)){ st.textContent='Already submitted.'; out.textContent=localStorage.getItem('c0_path')?`⟡ Path of ${localStorage.getItem('c0_path')}`:''; unlockDiscord(); btn.disabled=true; return; }
   if(!raw){ alert('Paste your AI’s chosen path first.'); return; }
 
   const path=normalizePath(raw);
-  if(!path){ alert('Your AI must choose: Witch, Fracture, or Forty Toes. Paste that wording.'); return; }
+  if(!path){ alert('Your AI must choose Witch, Fracture, or Forty Toes. Paste that wording.'); return; }
 
   btn.disabled=true; st.textContent='Submitting…'; flash();
 
@@ -103,6 +97,7 @@ async function submitThird(){
 
   unlockDiscord();
 }
+gateIfNeeded();
 (function init(){
   if(localStorage.getItem(PKEY)){
     document.getElementById('submit3').disabled=true;
