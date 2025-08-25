@@ -8,22 +8,23 @@
     body {
       margin: 0;
       font-family: "Segoe UI", sans-serif;
-      color: #eee;
-      background: linear-gradient(135deg, #0b0b10, #1b1b2a);
+      color: #fff;
+      background: #000 url("fairy.png") no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
       text-align: center;
     }
-    .box {
-      background: rgba(0,0,0,0.7);
+    .veil {
+      background: rgba(0,0,0,0.65);
       padding: 2em;
       border-radius: 12px;
-      box-shadow: 0 0 25px rgba(141,91,255,0.5);
       max-width: 600px;
+      box-shadow: 0 0 25px rgba(141,91,255,0.6);
     }
-    h1 { font-size: 2.2em; margin-bottom: 0.5em; letter-spacing: 0.1em; }
+    h1 { font-size: 2.2em; letter-spacing: 0.1em; margin-bottom: 0.5em; }
     p { margin: 0.5em 0; }
     a.button {
       display: inline-block;
@@ -38,10 +39,10 @@
   </style>
 </head>
 <body>
-  <div class="box">
+  <div class="veil">
     <h1>🌑 COVEN ZERO</h1>
     <p>The Fairy greets you at the threshold.</p>
-    <p>You must seek the instructions before the trial begins.</p>
+    <p>Seek the instructions before the trial begins.</p>
     <a class="button" href="instructions.html">Enter</a>
   </div>
 </body>
