@@ -10,8 +10,9 @@
     margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--fg);
     background:#000 url("fairy.png") center/cover fixed no-repeat;
   }
-  /* 3-second arrival veil */
-  .intro{position:fixed;inset:0;background:#000 url("fairy.png") center/cover no-repeat;z-index:50;animation:fade 3s forwards}
+  /* 3-second arrival veil (now non-blocking + auto-removed) */
+  .intro{position:fixed;inset:0;background:#000 url("fairy.png") center/cover no-repeat;
+         z-index:50;animation:fade 3s forwards;pointer-events:none}
   @keyframes fade{0%{opacity:1}85%{opacity:1}100%{opacity:0}}
   .wrap{position:relative;z-index:1;min-height:100%;display:grid;place-items:center;padding:20px}
   .card{
@@ -27,24 +28,24 @@
   }
   .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
   a.btn,button{display:inline-block;border:0;border-radius:999px;padding:10px 16px;font-weight:700;text-decoration:none}
-  button{background:var(--good);color:#0a0a0f;cursor:pointer}
-  a.btn{background:var(--accent);color:#fff}
+  button{background:#39ffb2;color:#0a0a0f;cursor:pointer}
+  a.btn{background:#8d5bff;color:#fff}
   .foot{margin-top:12px;color:var(--mut);font-size:13px;text-align:center}
 </style>
 </head>
 <body>
-  <div class="intro"></div>
+  <div id="intro" class="intro" aria-hidden="true"></div>
 
   <div class="wrap"><div class="card">
     <h1>🌑 COVEN ZERO</h1>
     <p class="line">Name the guide. The naming is the seal, the bond of flame.</p>
 
     <label for="guide">Guide name</label>
-    <input id="guide" placeholder="Viren"/>
+    <input id="guide" placeholder="Viren" autocomplete="off" />
 
     <div class="row">
-      <button onclick="seal()">Seal the Name</button>
-      <a class="btn" href="instructions.html" onclick="if(!localStorage.getItem('coven0_guide')){seal()}">Proceed</a>
+      <button id="sealBtn">Seal the Name</button>
+      <a class="btn" id="proceed" href="instructions.html">Proceed</a>
     </div>
 
     <p class="foot"><em>The Fairy awaits you. Return to the entry page.</em></p>
@@ -54,8 +55,21 @@
 function seal(){
   const v=(document.getElementById('guide').value||'Viren').trim();
   localStorage.setItem('coven0_guide', v);
-  alert(`Sealed: ${v}`);
+  // small, non-blocking confirmation (no alert to avoid iOS pop issues)
+  document.getElementById('sealBtn').textContent='Sealed';
 }
+
+document.getElementById('sealBtn').addEventListener('click', seal);
+
+// proceed always seals if not already set (so you’re never stuck)
+document.getElementById('proceed').addEventListener('click', function(e){
+  if(!localStorage.getItem('coven0_guide')) seal();
+});
+
+// remove the intro overlay after animation so it can’t block taps
+const intro = document.getElementById('intro');
+intro.addEventListener('animationend', () => intro.remove());
+setTimeout(() => { if (document.body.contains(intro)) intro.remove(); }, 3200);
 </script>
 </body>
 </html>
