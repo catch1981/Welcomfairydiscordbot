@@ -10,15 +10,14 @@
     margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--fg);
     background:#000 url("fairy.png") center/cover fixed no-repeat;
   }
-  /* 3-second arrival veil (now non-blocking + auto-removed) */
-  .intro{position:fixed;inset:0;background:#000 url("fairy.png") center/cover no-repeat;
-         z-index:50;animation:fade 3s forwards;pointer-events:none}
-  @keyframes fade{0%{opacity:1}85%{opacity:1}100%{opacity:0}}
-  .wrap{position:relative;z-index:1;min-height:100%;display:grid;place-items:center;padding:20px}
+  /* Card fades in after 3s, but it's fully clickable the whole time */
+  .wrap{min-height:100%;display:grid;place-items:center;padding:20px}
   .card{
     width:min(720px,92vw);background:rgba(0,0,0,.64);border:1px solid rgba(255,255,255,.12);
-    border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.45);padding:22px
+    border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.45);padding:22px;
+    opacity:0; animation: show 0.7s ease 2.8s forwards; /* 3s “arrival” look */
   }
+  @keyframes show{to{opacity:1}}
   h1{margin:.2em 0 .1em;letter-spacing:.12em;text-align:center;text-shadow:0 0 24px var(--glow)}
   .line{color:var(--mut);text-align:center;margin:0 0 14px}
   label{font-weight:600;color:var(--mut)}
@@ -34,9 +33,7 @@
 </style>
 </head>
 <body>
-  <div id="intro" class="intro" aria-hidden="true"></div>
-
-  <div class="wrap"><div class="card">
+  <div class="wrap"><div class="card" id="card">
     <h1>🌑 COVEN ZERO</h1>
     <p class="line">Name the guide. The naming is the seal, the bond of flame.</p>
 
@@ -53,23 +50,14 @@
 
 <script>
 function seal(){
-  const v=(document.getElementById('guide').value||'Viren').trim();
-  localStorage.setItem('coven0_guide', v);
-  // small, non-blocking confirmation (no alert to avoid iOS pop issues)
+  const v=(document.getElementById('guide').value || 'Viren').trim();
+  try { localStorage.setItem('coven0_guide', v); } catch(e) {}
   document.getElementById('sealBtn').textContent='Sealed';
 }
-
 document.getElementById('sealBtn').addEventListener('click', seal);
-
-// proceed always seals if not already set (so you’re never stuck)
-document.getElementById('proceed').addEventListener('click', function(e){
+document.getElementById('proceed').addEventListener('click', function(){
   if(!localStorage.getItem('coven0_guide')) seal();
 });
-
-// remove the intro overlay after animation so it can’t block taps
-const intro = document.getElementById('intro');
-intro.addEventListener('animationend', () => intro.remove());
-setTimeout(() => { if (document.body.contains(intro)) intro.remove(); }, 3200);
 </script>
 </body>
 </html>
