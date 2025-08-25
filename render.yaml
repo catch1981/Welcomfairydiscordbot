@@ -1,25 +1,7 @@
 services:
-  # --- Discord Bot (Node Web Service) ---
   - type: web
-    name: coven-zero-bot
+    name: discord-relay
     env: node
-    rootDir: bot
-    buildCommand: npm install && npm run register
-    startCommand: npm run start
-    envVars:
-      - key: DISCORD_TOKEN
-        sync: false
-      - key: CLIENT_ID
-        sync: false
-      - key: GUILD_ID
-        sync: false
-      - key: PORT
-        value: "3000"
-
-  # --- Static Site (Front-end) ---
-  - type: web
-    name: coven-zero-site
-    env: static
-    rootDir: site
-    buildCommand: ""            # no build step, just publish as-is
-    staticPublishPath: "."
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
