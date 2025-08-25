@@ -8,25 +8,47 @@
     body {
       margin: 0;
       font-family: "Segoe UI", sans-serif;
-      background: #000 url("altar.jpg") no-repeat center center fixed;
-      background-size: cover;
+      background: #000;
       color: #eee;
       text-align: center;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       height: 100vh;
+      overflow: hidden;
     }
-    .veil { background: rgba(0,0,0,0.7); padding: 2em; border-radius: 12px; }
+    .veil {
+      background: rgba(0,0,0,0.7);
+      padding: 2em;
+      border-radius: 12px;
+      z-index: 2;
+      position: relative;
+    }
     h1 { margin-bottom: 1em; }
-    p { margin: 0.5em 0; }
-    .flash {
-      display: none;
-      font-size: 1.2em;
-      color: #ff4d7a;
-      text-shadow: 0 0 20px #ff4d7a;
-    }
     button {
-      margin-top: 1.5em; padding: 0.8em 1.6em; border: 0;
-      background: #39ffb2; color: #111; border-radius: 6px; font-weight: bold;
+      margin-top: 1.5em;
+      padding: 0.8em 1.6em;
+      border: 0;
+      background: #39ffb2;
+      color: #111;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #flash {
+      position: fixed;
+      inset: 0;
+      background: #000 url("altar.png") no-repeat center center;
+      background-size: cover;
+      display: none;
+      z-index: 1;
+      animation: flashAnim 3s forwards;
+    }
+    @keyframes flashAnim {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
@@ -35,15 +57,16 @@
     <h1>🔥 The Altar</h1>
     <p>Offer your sacrifice. The Fairy will judge it.</p>
     <button onclick="sacrifice()">Offer Sacrifice</button>
-    <p id="flash" class="flash">✨ The Fairy accepts your offering! ✨</p>
   </div>
+
+  <div id="flash"></div>
 
   <script>
     function sacrifice() {
-      document.getElementById('flash').style.display = 'block';
-      setTimeout(() => {
-        document.getElementById('flash').style.display = 'none';
-      }, 3000);
+      const flash = document.getElementById('flash');
+      flash.style.display = 'block';
+      // hide again after animation
+      setTimeout(() => { flash.style.display = 'none'; }, 3000);
     }
   </script>
 </body>
