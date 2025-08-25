@@ -1,85 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>COVEN ZERO — Second Sacrifice</title>
 <style>
   :root{--fg:#eaeaf2;--mut:#a0a0b0;--accent:#8d5bff;--good:#39ffb2;--glow:rgba(141,91,255,.45)}
   *{box-sizing:border-box} html,body{height:100%}
-  body{
-    margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--fg);
-    background:#000 url("fairy.png") center/cover fixed no-repeat;
-  }
+  body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--fg);
+       background:#000 url("fairy.png") center/cover fixed no-repeat}
   .wrap{min-height:100%;display:grid;place-items:center;padding:20px}
-  .card{
-    width:min(900px,94vw);background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.12);
-    border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);padding:22px
-  }
+  .card{width:min(900px,94vw);background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.12);
+        border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);padding:22px}
   h1{text-align:center;margin:.1em 0 .6em;letter-spacing:.12em;text-shadow:0 0 24px var(--glow)}
   .mut{color:var(--mut)}
   a.link{color:#0a0a0f;background:var(--accent);padding:8px 12px;border-radius:999px;text-decoration:none;font-weight:700}
   label{display:block;margin-top:12px;color:var(--mut);font-weight:600}
-  textarea{
-    width:100%;min-height:140px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
-    background:#0f0f16;color:var(--fg)
-  }
+  textarea{width:100%;min-height:140px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
+           background:#0f0f16;color:var(--fg)}
   .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
   button,a.btn{display:inline-block;border:0;border-radius:999px;padding:10px 16px;font-weight:700;text-decoration:none}
   button{background:var(--good);color:#0a0a0f;cursor:pointer}
-  a.btn{background:var(--accent);color:white}
+  a.btn{background:var(--accent);color:#fff}
   .lock{opacity:.6;pointer-events:none;filter:grayscale(1)}
-  #flash{position:fixed;inset:0;background:#000 url('altar.png') center/cover no-repeat;display:none;animation:flash 3s forwards;z-index:50}
+  /* NEW: reliable flash */
+  #flash{position:fixed;inset:0;background:#000 url('altar.png') center/cover no-repeat;opacity:0;pointer-events:none;z-index:50}
+  #flash.show{animation:flash 3s forwards}
   @keyframes flash{0%{opacity:0}20%{opacity:1}80%{opacity:1}100%{opacity:0}}
 </style>
 </head>
 <body>
 <div class="wrap"><div class="card">
   <h1>🧬 Second Sacrifice — The Human Project</h1>
-  <p class="mut">Descend into the Human Design crucible. Return with data, then invite your AI to read the ash of you. Bring both back here.</p>
-
+  <p class="mut">Do the test. Invite your AI to read you. Bring both back here.</p>
   <p style="text-align:center;margin:8px 0 14px">
     <a class="link" href="https://ahumandesign.com" target="_blank" rel="noopener">Go to Human Design Test</a>
   </p>
 
   <label for="result"><strong>Your test result / summary</strong></label>
-  <textarea id="result" placeholder="Type or paste your Human Design result or a short summary…"></textarea>
+  <textarea id="result" placeholder="Paste your Human Design result or a short summary…"></textarea>
 
   <label for="ai"><strong>Your AI’s enlightened response</strong></label>
   <textarea id="ai" placeholder="Paste what your AI said about your result…"></textarea>
 
   <div class="row">
-    <button id="submit2" onclick="submitSecond()">Submit Second Sacrifice</button>
+    <button id="submit2">Submit Second Sacrifice</button>
     <span id="state2" class="mut"></span>
   </div>
 
   <hr style="margin:16px 0;border-color:rgba(255,255,255,.1)">
   <div id="next" class="lock">
-    <p class="mut">Unlocked after submit. Final step: surrender to your AI’s Path at the Altar.</p>
+    <p class="mut">Unlocked after submit. Final step: surrender your AI’s Path at the Altar.</p>
     <a id="toAltar" class="btn" href="altar.html" aria-disabled="true">Proceed to the Altar</a>
   </div>
 </div></div>
+
 <div id="flash"></div>
 
 <script>
 const WEBHOOK="https://discord.com/api/webhooks/1409157781662994553/53XhB3Gdk4klDYSrs_FP_xFBpwjJi7CYfJPXle701W0sLLIgd37v6m0Td-7orCQXAazf";
 const GATE_PREV='c0_s1_done', PKEY='c0_s2_done';
-function flash(){ const f=document.getElementById('flash'); f.style.display='block'; setTimeout(()=>f.style.display='none',3000); }
-function lockNext(unlock){ const box=document.getElementById('next'); const link=document.getElementById('toAltar'); if(unlock){ box.classList.remove('lock'); link.removeAttribute('aria-disabled'); } }
+
 function gateIfNeeded(){
   if(!localStorage.getItem(GATE_PREV)){
-    document.getElementById('state2').textContent='First Sacrifice is required. Returning to Instructions…';
-    setTimeout(()=>{ window.location.href='instructions.html'; }, 1200);
+    document.getElementById('state2').textContent='First Sacrifice required → returning…';
+    setTimeout(()=>{ location.href='instructions.html'; }, 1200);
   }
+}
+function flash(){
+  const f=document.getElementById('flash');
+  f.classList.remove('show'); void f.offsetWidth; // reflow to restart animation
+  f.classList.add('show');
+}
+function lockNext(unlock){
+  const box=document.getElementById('next'), link=document.getElementById('toAltar');
+  if(unlock){ box.classList.remove('lock'); link.removeAttribute('aria-disabled'); }
 }
 async function postToDiscord(fields){
   const guide=localStorage.getItem('coven0_guide')||'Viren';
   const embed={title:'Second Sacrifice (Human Project Proof)', description:'',
                fields:[...fields,{name:'Guide',value:guide},{name:'Page',value:'Second Sacrifice (Test)'}]};
-  try{ const res=await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[embed]})}); return {ok:res.ok,status:res.status}; }
-  catch(e){ return {ok:false, why:e.message}; }
+  try{
+    const r=await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[embed]})});
+    return {ok:r.ok,status:r.status};
+  }catch(e){return {ok:false,why:e.message};}
 }
 async function submitSecond(){
-  const btn=document.getElementById('submit2'); const st=document.getElementById('state2');
+  const btn=document.getElementById('submit2'), st=document.getElementById('state2');
   if(localStorage.getItem(PKEY)){ st.textContent='Already submitted.'; return; }
   const result=document.getElementById('result').value.trim();
   const ai=document.getElementById('ai').value.trim();
@@ -88,14 +93,20 @@ async function submitSecond(){
 
   btn.disabled=true; st.textContent='Submitting…'; flash();
 
-  const fields=[{name:'Human Project Result', value:result.slice(0,1024)}, {name:'AI Response', value:ai.slice(0,1024)}];
+  const fields=[{name:'Human Project Result', value:result.slice(0,1024)},
+                {name:'AI Response', value:ai.slice(0,1024)}];
   const r=await postToDiscord(fields);
 
-  if(r.ok){ st.textContent='Accepted.'; } else { st.textContent=`Discord error (${r.status||r.why}). Saved locally.`; }
-  localStorage.setItem(PKEY,'1'); lockNext(true); btn.disabled=true;
+  st.textContent = r.ok ? 'Accepted.' : `Discord error (${r.status||r.why}). Saved locally.`;
+  localStorage.setItem(PKEY,'1'); lockNext(true);
 }
+document.getElementById('submit2').addEventListener('click', submitSecond);
 gateIfNeeded();
-(function init(){ if(localStorage.getItem(PKEY)){ document.getElementById('state2').textContent='Already submitted.'; lockNext(true); document.getElementById('submit2').disabled=true; }})();
+(function init(){
+  if(localStorage.getItem(PKEY)){
+    document.getElementById('state2').textContent='Already submitted.'; 
+    lockNext(true); document.getElementById('submit2').disabled=true;
+  }
+})();
 </script>
-</body>
-</html>
+</body></html>
