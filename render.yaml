@@ -3,7 +3,6 @@ services:
   - type: web
     name: coven-zero-bot
     env: node
-    plan: free
     rootDir: bot
     buildCommand: npm install && npm run register
     startCommand: npm run start
@@ -21,7 +20,6 @@ services:
   - type: web
     name: coven-zero-site
     env: static
-    plan: free
     rootDir: site
-    buildCommand: ""         # no build, just serve files
+    buildCommand: ""            # no build step, just publish as-is
     staticPublishPath: "."
