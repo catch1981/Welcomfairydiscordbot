@@ -1,23 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coven Zero — First Quest</title>
-  <link rel="stylesheet" href="/styles.css">
-  <script defer src="/js/env.js"></script>
-  <script defer src="/js/state.js"></script>
-  <script defer src="/js/test.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COVEN ZERO — Human Project</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #0b0b10, #1b1b2a);
+      color: #eee;
+      padding: 2em;
+      text-align: center;
+    }
+    h1 { margin-bottom: 1em; }
+    a.button {
+      display: inline-block; margin: 1em;
+      padding: 0.8em 1.6em; border-radius: 6px;
+      text-decoration: none; font-weight: bold;
+    }
+    .go { background: #8d5bff; color: #fff; }
+    .return { background: #39ffb2; color: #111; }
+  </style>
 </head>
-<body class="bg-entry">
-  <div class="scroll thin">
-    <h1>First Quest — The Self</h1>
-    <p>Lay yourself bare. What wound forged you? What vow binds you?</p>
-    <textarea id="firstSacrifice" rows="8" placeholder="Write the truth that burns."></textarea>
-    <div class="btns">
-      <button id="saveFirst" class="btn">Offer First Sacrifice</button>
-      <a href="/altar.html" class="soft">Go to the Altar</a>
-    </div>
-  </div>
+<body>
+  <h1>🧬 The Human Project</h1>
+  <p>You must complete the Human Design test to continue.</p>
+  <a class="button go" href="https://ahumandesign.com" target="_blank">Go to Test</a>
+  <p>When finished, return to the altar to offer proof of your trial.</p>
+  <a class="button return" href="altar.html">Return to Altar</a>
 </body>
 </html>
