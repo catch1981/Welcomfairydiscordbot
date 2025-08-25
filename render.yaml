@@ -18,9 +18,10 @@ services:
         value: "3000"
 
   # --- Static Site (Front-end) ---
-  - type: static
+  - type: web
     name: coven-zero-site
+    env: static
+    plan: free
     rootDir: site
-    # If you're not running a build (pure static), leave buildCommand empty:
-    buildCommand: ""
+    buildCommand: ""         # no build, just serve files
     staticPublishPath: "."
