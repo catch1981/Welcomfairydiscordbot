@@ -1,9 +1,22 @@
 services:
   - type: web
-    name: welcomefairydiscordbot
+    name: welcomfairydiscordbot
     runtime: node
-    buildCommand: "npm install"
+    rootDir: .        # <-- repo root containing package.json
+    region: oregon
+    plan: free
+    buildCommand: >
+      bash -lc 'set -e;
+      node -v;
+      if [ -f package-lock.json ]; then
+        echo "[build] lockfile found → npm ci";
+        npm ci --no-audit --no-fund || (echo "[build] ci failed → fallback to npm install" && npm install --no-audit --no-fund);
+      else
+        echo "[build] no lockfile → npm install";
+        npm install --no-audit --no-fund;
+      fi'
     startCommand: "npm start"
+    postDeployCommand: "npm run register"
     envVars:
       - key: NODE_VERSION
         value: 20
