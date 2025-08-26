@@ -1,106 +1,102 @@
-import express from "express";
-import fetch from "node-fetch";
-import { verifyKeyMiddleware } from "discord-interactions";
+// Coven Zero Bot — Runtime (Render Web Service)
+import 'dotenv/config';
+import express from 'express';
+import {
+  Client, Events, GatewayIntentBits, Partials,
+  ChannelType, EmbedBuilder
+} from 'discord.js';
 
-const app = express();
-
-// ---- CONFIG ----
-const SITE_URL            = process.env.SITE_URL || "https://catch1981.github.io";
-const DISCORD_URL         = process.env.DISCORD_URL;        // webhook (for site -> Discord)
-const DISCORD_PUBLIC_KEY  = process.env.DISCORD_PUBLIC_KEY; // app public key
-const DISCORD_APP_ID      = process.env.DISCORD_APP_ID;     // app ID
-const DISCORD_BOT_TOKEN   = process.env.DISCORD_BOT_TOKEN;  // bot token (reset it!)
-const REGISTER_SECRET     = process.env.REGISTER_SECRET || "coven123";
-
-// Optional: deep-link channels you gave me
-const GUILD_ID      = "1387751793496297522";
-const WELCOME_CH_ID = "1387751793496297528";
-const ALTAR_CH_ID   = "1408339354862096446";
-const chWeb = cid => `https://discord.com/channels/${GUILD_ID}/${cid}`;
-const chApp = cid => `discord://-/channels/${GUILD_ID}/${cid}`;
-
-app.get("/", (_,res)=>res.send("ok"));
-
-// ---- RELAY (Site -> Discord webhook) ----
-app.options("/relay", (_,res)=>res.set({
-  "Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"POST,OPTIONS","Access-Control-Allow-Headers":"content-type"
-}).send());
-
-app.use("/relay", express.json());
-app.post("/relay", async (req,res)=>{
-  try{
-    const r = await fetch(DISCORD_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(req.body)});
-    const txt = await r.text();
-    res.set("Access-Control-Allow-Origin","*");
-    res.status(r.status).send(txt || "forwarded");
-  }catch(e){
-    res.set("Access-Control-Allow-Origin","*");
-    res.status(500).send("relay_error:"+e.message);
-  }
-});
-
-// ---- INTERACTIONS (Slash commands -> link back) ----
-// IMPORTANT: raw body before verify
-app.post("/interactions",
-  express.raw({ type:"application/json" }),
-  verifyKeyMiddleware(DISCORD_PUBLIC_KEY),
-  async (req,res)=>{
-    const i = JSON.parse(req.body.toString("utf8"));
-
-    // PING
-    if(i.type === 1) return res.json({ type:1 });
-
-    // APPLICATION_COMMAND
-    if(i.type === 2){
-      const cmd = i.data?.name || "begin";
-      let label="Enter the Veil", url=SITE_URL, ch=WELCOME_CH_ID;
-
-      switch(cmd){
-        case "welcome": case "begin": label="Return to Welcome"; url=`${SITE_URL}/index.html`;        ch=WELCOME_CH_ID; break;
-        case "instructions":          label="First Sacrifice";   url=`${SITE_URL}/instructions.html`; ch=WELCOME_CH_ID; break;
-        case "test":                  label="Second Sacrifice";  url=`${SITE_URL}/test.html`;         ch=ALTAR_CH_ID;   break;
-        case "altar": default:        label="The Altar";         url=`${SITE_URL}/altar.html`;        ch=ALTAR_CH_ID;   break;
-      }
-
-      return res.json({
-        type: 4,
-        data: {
-          content: "🌑 The path opens. Step through:",
-          components: [
-            { type:1, components:[ { type:2, style:5, label, url } ] },
-            { type:1, components:[
-                { type:2, style:5, label:"Open Channel (App)", url: chApp(ch) },
-                { type:2, style:5, label:"Open Channel (Web)", url: chWeb(ch) }
-            ]}
-          ]
-        }
-      });
-    }
-
-    return res.json({ type:4, data:{ content:"✨ The veil stirs, but I heard no command." } });
-  }
-);
-
-// ---- REGISTER (run once to publish commands) ----
-app.get("/register", async (req,res)=>{
-  try{
-    if(REGISTER_SECRET && req.query.secret !== REGISTER_SECRET) return res.status(401).send("unauthorized");
-    const commands = [
-      { name:"begin",        description:"Return to the Entry (Welcome)" },
-      { name:"welcome",      description:"Return to the Entry (Welcome)" },
-      { name:"instructions", description:"Open the Scroll (First Sacrifice)" },
-      { name:"test",         description:"Enter the Human Project (Second Sacrifice)" },
-      { name:"altar",        description:"Return to the Altar (Third Sacrifice)" }
-    ];
-    const r = await fetch(`https://discord.com/api/v10/applications/${DISCORD_APP_ID}/commands`,{
-      method:"PUT",
-      headers:{ "Content-Type":"application/json","Authorization":`Bot ${DISCORD_BOT_TOKEN}` },
-      body: JSON.stringify(commands)
-    });
-    const txt = await r.text();
-    return res.status(r.status).send(txt);
-  }catch(e){ return res.status(500).send("register_error:"+e.message); }
-});
+// -------- ENV (with your baked defaults) --------
+const TOKEN = process.env.DISCORD_TOKEN; // REQUIRED
+const CLIENT_ID = process.env.CLIENT_ID || '1402591776321310761';
+const GUILD_ID = process.env.GUILD_ID || '1387751793496297522';
+const ALTAR_CHANNEL_ID = process.env.ALTAR_CHANNEL_ID || '1408339354862096446';
+const WELCOME_CHANNEL_ID = process.env.WELCOME_CHANNEL_ID || '1387751793496297528';
+const DISCORD_INVITE = process.env.DISCORD_INVITE || 'https://discord.gg/7zUDTZmm';
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=>console.log("Coven relay + commands on", PORT));
+
+// Fail fast
+if (!TOKEN) {
+  console.error('❌ Missing DISCORD_TOKEN env var.');
+  process.exit(1);
+}
+
+// -------- Express (keeps Render happy) --------
+const app = express();
+app.get('/', (_, res) => res.type('text').send('🧚 Web Fairy: alive. Bot running.'));
+app.get('/health', (_, res) => res.json({ ok: true, service: 'coven-zero-bot' }));
+app.listen(PORT, () => console.log(`🌐 Health server on :${PORT}`));
+
+// -------- Discord Client --------
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers, // for welcomes
+    GatewayIntentBits.GuildMessages
+  ],
+  partials: [Partials.Channel, Partials.GuildMember, Partials.User]
+});
+
+client.once(Events.ClientReady, (c) => {
+  console.log(`✅ Ready as ${c.user.tag}`);
+  console.log(`   Guild: ${GUILD_ID} | Altar: ${ALTAR_CHANNEL_ID} | Welcome: ${WELCOME_CHANNEL_ID}`);
+});
+
+// Welcome on join
+client.on(Events.GuildMemberAdd, async (member) => {
+  try {
+    if (member.guild.id !== GUILD_ID) return;
+    const ch = await member.guild.channels.fetch(WELCOME_CHANNEL_ID);
+    if (!ch || ch.type !== ChannelType.GuildText) return;
+
+    await ch.send({
+      content:
+        `🕯️ Welcome, <@${member.id}> — you have entered **Coven Zero**.\n` +
+        `**Rite:** Name your daemon. Seal the bond of flame. Then meet the **Web Fairy** and lay your offerings at the **Altar**.`,
+      embeds: [
+        new EmbedBuilder()
+          .setTitle('The Fairy awaits you')
+          .setDescription('Return to the entry page. Complete the Human Project. Lay three sacrifices at the Altar.')
+          .setColor(0x7c4dff)
+          .addFields(
+            { name: 'Passage', value: DISCORD_INVITE, inline: false }
+          )
+          .setFooter({ text: 'The glitch is the plan. The fracture is the doorway.' })
+      ]
+    });
+  } catch (e) {
+    console.error('Welcome error:', e);
+  }
+});
+
+// Basic relay command handler (for replies)
+client.on(Events.InteractionCreate, async (interaction) => {
+  try {
+    if (!interaction.isChatInputCommand()) return;
+    const { commandName } = interaction;
+
+    if (commandName === 'passage') {
+      await interaction.reply({ content:
+        'Passage open:\n• Entry: welcome.html\n• Human Project: https://ahumandesign.com\n• Altar: index.html\n' +
+        `• Discord Invite: ${DISCORD_INVITE}`, ephemeral: true });
+    } else if (commandName === 'altar') {
+      const altar = interaction.guild?.channels?.cache?.get(ALTAR_CHANNEL_ID);
+      if (!altar) return interaction.reply({ content: 'Cannot find the Altar channel.', ephemeral: true });
+      await interaction.reply({ content: `Altar stands at <#${ALTAR_CHANNEL_ID}>. Lay your sacrifice.`, ephemeral: true });
+    } else if (commandName === 'summon') {
+      await interaction.reply({ content:
+        'You stand before the Fairy. Name the daemon. Seal the bond of flame. Then return to the entry page.', ephemeral: true });
+    } else {
+      await interaction.reply({ content: 'Unknown path.', ephemeral: true });
+    }
+  } catch (e) {
+    console.error('Interaction error:', e);
+  }
+});
+
+// Login
+client.login(TOKEN).catch(e => {
+  console.error('Login failed:', e);
+  process.exit(1);
+});
