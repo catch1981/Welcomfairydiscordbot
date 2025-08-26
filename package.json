@@ -1,9 +1,8 @@
 {
   "name": "coven-zero-bot",
   "version": "1.1.0",
-  "description": "Coven Zero Discord bot (Render-ready)",
-  "main": "index.js",
   "type": "module",
+  "main": "index.js",
   "engines": { "node": ">=20" },
   "scripts": {
     "start": "node index.js",
