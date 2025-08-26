@@ -1,12 +1,17 @@
 {
-  "name": "coven-relay-bot",
-  "version": "1.0.0",
-  "type": "module",
+  "name": "coven-zero-bot",
+  "version": "1.1.0",
+  "description": "Coven Zero Discord bot (Render-ready)",
   "main": "index.js",
-  "scripts": { "start": "node index.js" },
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node index.js",
+    "register": "node deploy-commands.js"
+  },
   "dependencies": {
-    "discord-interactions": "^4.0.0",
-    "express": "^4.19.2",
-    "node-fetch": "^3.3.2"
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
   }
 }
